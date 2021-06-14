@@ -1,0 +1,29 @@
+pip3 install pybind11 numba pycocotools terminaltables 
+
+pip3 install mmcv-full -f https://download.openmmlab.com/mmcv/dist/cu102/torch1.8.1/index.html
+
+apt-get install libssl-dev libboost-all-dev
+cmake >= 3.13.2 : hard install
+spconv install 
+pip install spconv.whl
+
+------------------------------------------------MODIFY
+SA-SSD/mmdet/ops/points_op/src/points_op.cpp
+#define CHECK_CONTIGUOUS(x) AT_CHECK(x.is_contiguous(), #x, " must be contiguous ")
+->
+#define CHECK_CONTIGUOUS(x) AT_ASSERT(x.is_contiguous())
+
+------------------------------------------------MODIFY
+SA-SSD/mmdet/ops/pointnet2/src/interpolate.cpp
+cudaStream_t stream = THCState_getCurrentStream(state);
+->
+cudaStream_t stream = at::cuda::getCurrentCUDAStream();
+
+------------------------------------------------MODIFY
+SA-SSD/mmdet/ops/iou3d/src/iou3d.cpp
+#define CHECK_CUDA(x) AT_CHECK(x.type().is_cuda(), #x, " must be a CUDAtensor ")
+#define CHECK_CONTIGUOUS(x) AT_CHECK(x.is_contiguous(), #x, " must be contiguous ")
+->
+#define CHECK_CUDA(x) AT_ASSERT(x.type().is_cuda())
+#define CHECK_CONTIGUOUS(x) AT_ASSERT(x.is_contiguous())
+-------------------------------------------------------
